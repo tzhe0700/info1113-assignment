@@ -1,0 +1,4 @@
+ADD COLLECTION spellbooks.csv
+LIST ALL
+EXIT
+

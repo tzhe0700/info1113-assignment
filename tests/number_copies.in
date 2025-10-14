@@ -1,0 +1,6 @@
+ADD SPELLBOOK spellbooks.csv 111111
+ADD SPELLBOOK spellbooks.csv 111112
+ADD SPELLBOOK spellbooks.csv 111113
+NUMBER COPIES
+EXIT
+

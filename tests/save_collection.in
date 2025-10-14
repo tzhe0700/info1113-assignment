@@ -1,0 +1,4 @@
+ADD COLLECTION spellbooks.csv
+SAVE COLLECTION saved_books.csv
+EXIT
+

@@ -91,15 +91,27 @@ public class Archive {
             List<SpellBook> books = new ArrayList<>(spellBooks.values());
             books.sort(Comparator.comparingInt(SpellBook::getSerialNumber));
             if (books.isEmpty()) {
-                if (isAll) printUserOutput("No spellbooks in system.");
-                else printUserOutput("No spellbooks available.");
+                printUserOutput("No spellbooks in system.");
                 return;
             }
             boolean anyAvailable = false;
+            boolean firstSpellbook = true;
             for (SpellBook sb : books) {
                 if (isAvailable && !sb.isAvailable()) continue;
                 if (isAvailable) anyAvailable = true;
-                output.add(isLong ? sb.toLongString() : sb.toShortString());
+                if (isLong) {
+                    if (!firstSpellbook) {
+                        output.add(""); // Add blank line between spellbooks
+                    }
+                    String longStr = sb.toLongString();
+                    String[] lines = longStr.split("\n");
+                    for (String line : lines) {
+                        output.add(line);
+                    }
+                    firstSpellbook = false;
+                } else {
+                    output.add(sb.toShortString());
+                }
             }
             if (isAvailable && !anyAvailable) {
                 printUserOutput("No spellbooks available.");
@@ -141,10 +153,18 @@ public class Archive {
             return;
         }
         if (upper.startsWith("TYPE ")) {
+            if (spellBooks.isEmpty()) {
+                printUserOutput("No spellbooks in system.");
+                return;
+            }
             String type = original.substring(5).trim();
             List<SpellBook> found = new ArrayList<>();
             for (SpellBook sb : spellBooks.values()) {
                 if (sb.getType().equalsIgnoreCase(type)) found.add(sb);
+            }
+            if (found.isEmpty()) {
+                printUserOutput("No spellbooks with type " + type + ".");
+                return;
             }
             found.sort(Comparator.comparing(SpellBook::getTitle));
             for (SpellBook sb : found) output.add(sb.toShortString());
@@ -152,10 +172,18 @@ public class Archive {
             return;
         }
         if (upper.startsWith("INVENTOR ")) {
+            if (spellBooks.isEmpty()) {
+                printUserOutput("No spellbooks in system.");
+                return;
+            }
             String inventor = original.substring(9).trim();
             List<SpellBook> found = new ArrayList<>();
             for (SpellBook sb : spellBooks.values()) {
                 if (sb.getInventor().equalsIgnoreCase(inventor)) found.add(sb);
+            }
+            if (found.isEmpty()) {
+                printUserOutput("No spellbooks by " + inventor + ".");
+                return;
             }
             found.sort(Comparator.comparing(SpellBook::getTitle));
             for (SpellBook sb : found) output.add(sb.toShortString());
@@ -163,6 +191,10 @@ public class Archive {
             return;
         }
         if (upper.equals("NUMBER COPIES")) {
+            if (spellBooks.isEmpty()) {
+                printUserOutput("No spellbooks in system.");
+                return;
+            }
             Map<String, Integer> map = new TreeMap<>();
             for (SpellBook sb : spellBooks.values()) {
                 String key = sb.getTitle()+ " (" + sb.getInventor() + ")";
@@ -181,18 +213,33 @@ public class Archive {
                     int serial = Integer.parseInt(args[1]);
                     SpellBook sb = spellBooks.get(serial);
                     if (sb == null) {
-                        printUserOutput("No spellbooks in system.");
+                        if (spellBooks.isEmpty()) {
+                            printUserOutput("No spellbooks in system.");
+                        } else {
+                            printUserOutput("No such spellbook in system.");
+                        }
                         return;
                     }
                     printUserOutput(sb.toLongString());
                     return;
-                } catch (Exception e) { printUserOutput("No spellbooks in system."); return; }
+                } catch (Exception e) { 
+                    if (spellBooks.isEmpty()) {
+                        printUserOutput("No spellbooks in system.");
+                    } else {
+                        printUserOutput("No such spellbook in system.");
+                    }
+                    return; 
+                }
             } else if (args.length >= 3 && args[2].equalsIgnoreCase("HISTORY")) {
                 try {
                     int serial = Integer.parseInt(args[1]);
                     SpellBook sb = spellBooks.get(serial);
                     if (sb == null) {
-                        printUserOutput("No spellbooks in system.");
+                        if (spellBooks.isEmpty()) {
+                            printUserOutput("No spellbooks in system.");
+                        } else {
+                            printUserOutput("No such spellbook in system.");
+                        }
                         return;
                     }
                     List<Integer> hist = sb.getRentalHistory();
@@ -205,18 +252,36 @@ public class Archive {
                         hLines.add(num+"");
                     printUserOutput(hLines);
                     return;
-                } catch (Exception e) { printUserOutput("No spellbooks in system."); return; }
+                } catch (Exception e) { 
+                    if (spellBooks.isEmpty()) {
+                        printUserOutput("No spellbooks in system.");
+                    } else {
+                        printUserOutput("No such spellbook in system.");
+                    }
+                    return; 
+                }
             } else if (args.length >= 2) {
                 try {
                     int serial = Integer.parseInt(args[1]);
                     SpellBook sb = spellBooks.get(serial);
                     if (sb == null) {
-                        printUserOutput("No spellbooks in system.");
+                        if (spellBooks.isEmpty()) {
+                            printUserOutput("No spellbooks in system.");
+                        } else {
+                            printUserOutput("No such spellbook in system.");
+                        }
                         return;
                     }
                     printUserOutput(sb.toShortString());
                     return;
-                } catch (Exception e) { printUserOutput("No spellbooks in system."); return; }
+                } catch (Exception e) { 
+                    if (spellBooks.isEmpty()) {
+                        printUserOutput("No spellbooks in system.");
+                    } else {
+                        printUserOutput("No such spellbook in system.");
+                    }
+                    return; 
+                }
             }
         }
         if (upper.startsWith("STUDENT HISTORY ")) {
@@ -454,7 +519,14 @@ public class Archive {
         System.out.println();
     }
     private void printUserOutput(List<String> lines) {
-        for (String l : lines) System.out.println("user: " + l);
+        if (lines.isEmpty()) {
+            System.out.println();
+            return;
+        }
+        System.out.println("user: " + lines.get(0));
+        for (int i = 1; i < lines.size(); i++) {
+            System.out.println(lines.get(i));
+        }
         System.out.println();
     }
     

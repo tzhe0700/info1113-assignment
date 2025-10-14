@@ -1,0 +1,5 @@
+ADD COLLECTION spellbooks.csv
+LIST TYPES
+TYPE Charm
+EXIT
+
