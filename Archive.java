@@ -285,6 +285,10 @@ public class Archive {
             }
         }
         if (upper.startsWith("STUDENT HISTORY ")) {
+            if (students.isEmpty()) {
+                printUserOutput("No students in system.");
+                return;
+            }
             String[] args = original.split(" ");
             if (args.length < 3) {
                 printUserOutput("No such student in system.");
@@ -311,6 +315,10 @@ public class Archive {
             } catch (Exception e) { printUserOutput("No such student in system."); return; }
         }
         if (upper.startsWith("STUDENT SPELLBOOKS ")) {
+            if (students.isEmpty()) {
+                printUserOutput("No students in system.");
+                return;
+            }
             String[] args = original.split(" ");
             if (args.length < 3) {
                 printUserOutput("No such student in system.");
@@ -446,6 +454,10 @@ public class Archive {
             return;
         }
         if (upper.startsWith("SAVE COLLECTION ")) {
+            if (spellBooks.isEmpty()) {
+                printUserOutput("No spellbooks in system.");
+                return;
+            }
             String[] args = original.split(" ");
             if (args.length < 3) {
                 printUserOutput("Unable to save collection.");
