@@ -493,7 +493,13 @@ public class Archive {
     private SpellBook loadSpellBookBySerial(String filename, int serial) {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
+            boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
+                if (isFirstLine && line.toLowerCase().contains("serialnumber")) {
+                    isFirstLine = false;
+                    continue;
+                }
+                isFirstLine = false;
                 String[] cols = line.split(",");
                 if (cols.length < 4) continue;
                 int sn = Integer.parseInt(cols[0]);
@@ -511,7 +517,13 @@ public class Archive {
         List<SpellBook> books = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
+            boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
+                if (isFirstLine && line.toLowerCase().contains("serialnumber")) {
+                    isFirstLine = false;
+                    continue;
+                }
+                isFirstLine = false;
                 String[] cols = line.split(",");
                 if (cols.length < 4) continue;
                 int sn = Integer.parseInt(cols[0]);
