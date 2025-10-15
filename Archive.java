@@ -34,6 +34,9 @@ public class Archive {
         String upper = input.toUpperCase();
         if (upper.startsWith("ADD STUDENT ")) {
             String name = original.substring(12).trim();
+            // Collapse internal multiple spaces to single spaces for canonical storage,
+            // but preserve leading/trailing trim as per examples
+            name = name.replaceAll("\\s+", " ");
             if (name.isEmpty()) {
                 printUserOutput("No name provided.");
                 return;
@@ -50,16 +53,31 @@ public class Archive {
                 return;
             }
             String filename = parts[2];
+            // If file does not exist, report as such
+            try {
+                File f = new File(filename);
+                if (!f.exists()) {
+                    printUserOutput("No such file.");
+                    return;
+                }
+            } catch (Exception e) {
+                printUserOutput("No such file.");
+                return;
+            }
             int serial;
             try {
                 serial = Integer.parseInt(parts[3].trim());
             } catch (Exception e) {
-                printUserOutput("No spellbooks in system.");
+                printUserOutput("No such spellbook in file.");
                 return;
             }
             SpellBook toAdd = loadSpellBookBySerial(filename, serial);
-            if (toAdd == null || spellBooks.containsKey(serial)) {
-                printUserOutput("No spellbooks in system.");
+            if (spellBooks.containsKey(serial)) {
+                printUserOutput("Spellbook already exists in system.");
+                return;
+            }
+            if (toAdd == null) {
+                printUserOutput("No such spellbook in file.");
                 return;
             }
             spellBooks.put(serial, toAdd);
@@ -73,6 +91,17 @@ public class Archive {
                 return;
             }
             String filename = parts[2];
+            // If file does not exist, report as such
+            try {
+                File f = new File(filename);
+                if (!f.exists()) {
+                    printUserOutput("No such collection.");
+                    return;
+                }
+            } catch (Exception e) {
+                printUserOutput("No such collection.");
+                return;
+            }
             int added = 0;
             for (SpellBook s : loadSpellBooks(filename)) {
                 if (!spellBooks.containsKey(s.getSerialNumber())) {
@@ -80,7 +109,11 @@ public class Archive {
                     added++;
                 }
             }
-            printUserOutput(added + " spellbooks successfully added.");
+            if (added == 0) {
+                printUserOutput("No spellbooks have been added to the system.");
+            } else {
+                printUserOutput(added + " spellbooks successfully added.");
+            }
             return;
         }
         if (upper.equals("LIST ALL") || upper.equals("LIST ALL LONG") 
@@ -125,14 +158,20 @@ public class Archive {
                 printUserOutput("No spellbooks in system.");
                 return;
             }
-            Set<String> types = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            for (SpellBook sb : spellBooks.values()) types.add(sb.getType());
-            if (types.isEmpty()) {
+            Map<String, String> typeMap = new LinkedHashMap<>();
+            for (SpellBook sb : spellBooks.values()) {
+                String t = sb.getType();
+                String key = t.toLowerCase();
+                if (!typeMap.containsKey(key)) typeMap.put(key, t);
+            }
+            if (typeMap.isEmpty()) {
                 printUserOutput("No spellbooks in system.");
             } else {
-                List<String> typeList = new ArrayList<>();
-                for (String t : new TreeSet<>(types)) typeList.add(capFirst(t));
-                printUserOutput(typeList);
+                List<String> keys = new ArrayList<>(typeMap.keySet());
+                keys.sort(String.CASE_INSENSITIVE_ORDER);
+                List<String> out = new ArrayList<>();
+                for (String k : keys) out.add(typeMap.get(k));
+                printUserOutput(out);
             }
             return;
         }
@@ -141,14 +180,20 @@ public class Archive {
                 printUserOutput("No spellbooks in system.");
                 return;
             }
-            Set<String> inventors = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            for (SpellBook sb : spellBooks.values()) inventors.add(sb.getInventor());
-            if (inventors.isEmpty()) {
+            Map<String, String> inventorMap = new LinkedHashMap<>();
+            for (SpellBook sb : spellBooks.values()) {
+                String inv = sb.getInventor();
+                String key = inv.toLowerCase();
+                if (!inventorMap.containsKey(key)) inventorMap.put(key, inv);
+            }
+            if (inventorMap.isEmpty()) {
                 printUserOutput("No spellbooks in system.");
             } else {
-                List<String> inventorList = new ArrayList<>();
-                for (String t : new TreeSet<>(inventors)) inventorList.add(capFirst(t));
-                printUserOutput(inventorList);
+                List<String> keys = new ArrayList<>(inventorMap.keySet());
+                keys.sort(String.CASE_INSENSITIVE_ORDER);
+                List<String> out = new ArrayList<>();
+                for (String k : keys) out.add(inventorMap.get(k));
+                printUserOutput(out);
             }
             return;
         }
@@ -206,8 +251,47 @@ public class Archive {
             printUserOutput(output);
             return;
         }
+        if (upper.startsWith("SPELLBOOK HISTORY ")) {
+            // Correct handling for: SPELLBOOK HISTORY <serialNumber>
+            String[] args = original.split(" ");
+            if (args.length < 3) {
+                printUserOutput("No such spellbook in system.");
+                return;
+            }
+            try {
+                int serial = Integer.parseInt(args[2]);
+                SpellBook sb = spellBooks.get(serial);
+                if (sb == null) {
+                    printUserOutput("No such spellbook in system.");
+                    return;
+                }
+                List<Integer> hist = sb.getRentalHistory();
+                if (hist.isEmpty()) {
+                    printUserOutput("No rental history.");
+                    return;
+                }
+                List<String> hLines = new ArrayList<>();
+                for (int num : hist) hLines.add(num+"");
+                printUserOutput(hLines);
+                return;
+            } catch (Exception e) { printUserOutput("No such spellbook in system."); return; }
+        }
         if (upper.startsWith("SPELLBOOK ")) {
             String[] args = original.split(" ");
+            // Support alternate: SPELLBOOK <serial> HISTORY
+            if (args.length >= 3 && args[2].equalsIgnoreCase("HISTORY")) {
+                try {
+                    int serial = Integer.parseInt(args[1]);
+                    SpellBook sb = spellBooks.get(serial);
+                    if (sb == null) { printUserOutput("No such spellbook in system."); return; }
+                    List<Integer> hist = sb.getRentalHistory();
+                    if (hist.isEmpty()) { printUserOutput("No rental history."); return; }
+                    List<String> hLines = new ArrayList<>();
+                    for (int num : hist) hLines.add(num+"");
+                    printUserOutput(hLines);
+                    return;
+                } catch (Exception e) { printUserOutput("No such spellbook in system."); return; }
+            }
             if (args.length >= 3 && args[2].equalsIgnoreCase("LONG")) {
                 try {
                     int serial = Integer.parseInt(args[1]);
@@ -221,36 +305,6 @@ public class Archive {
                         return;
                     }
                     printUserOutput(sb.toLongString());
-                    return;
-                } catch (Exception e) { 
-                    if (spellBooks.isEmpty()) {
-                        printUserOutput("No spellbooks in system.");
-                    } else {
-                        printUserOutput("No such spellbook in system.");
-                    }
-                    return; 
-                }
-            } else if (args.length >= 3 && args[2].equalsIgnoreCase("HISTORY")) {
-                try {
-                    int serial = Integer.parseInt(args[1]);
-                    SpellBook sb = spellBooks.get(serial);
-                    if (sb == null) {
-                        if (spellBooks.isEmpty()) {
-                            printUserOutput("No spellbooks in system.");
-                        } else {
-                            printUserOutput("No such spellbook in system.");
-                        }
-                        return;
-                    }
-                    List<Integer> hist = sb.getRentalHistory();
-                    if (hist.isEmpty()) {
-                        printUserOutput("No rental history.");
-                        return;
-                    }
-                    List<String> hLines = new ArrayList<>();
-                    for (int num : hist)
-                        hLines.add(num+"");
-                    printUserOutput(hLines);
                     return;
                 } catch (Exception e) { 
                     if (spellBooks.isEmpty()) {
@@ -374,12 +428,14 @@ public class Archive {
                 int serial = Integer.parseInt(args[2]);
                 Student stu = students.get(snum);
                 if (stu == null) {
-                    printUserOutput("No students in system.");
+                    if (students.isEmpty()) printUserOutput("No students in system.");
+                    else printUserOutput("No such student in system.");
                     return;
                 }
                 SpellBook sb = spellBooks.get(serial);
                 if (sb == null) {
-                    printUserOutput("No spellbooks in system.");
+                    if (spellBooks.isEmpty()) printUserOutput("No spellbooks in system.");
+                    else printUserOutput("No such spellbook in system.");
                     return;
                 }
                 if (!sb.isAvailable()) {
@@ -390,19 +446,25 @@ public class Archive {
                 stu.rentSpellbook(serial);
                 printUserOutput("Success.");
                 return;
-            } catch (Exception e) { printUserOutput("No students in system."); return; }
+            } catch (Exception e) { 
+                if (students.isEmpty()) printUserOutput("No students in system.");
+                else printUserOutput("No such student in system.");
+                return; 
+            }
         }
         if (upper.startsWith("RELINQUISH ALL ")) {
             String[] args = original.split(" ");
             if (args.length < 3) {
-                printUserOutput("No students in system.");
+                if (students.isEmpty()) printUserOutput("No students in system.");
+                else printUserOutput("No such student in system.");
                 return;
             }
             try {
                 int snum = Integer.parseInt(args[2]);
                 Student stu = students.get(snum);
                 if (stu == null) {
-                    printUserOutput("No students in system.");
+                    if (students.isEmpty()) printUserOutput("No students in system.");
+                    else printUserOutput("No such student in system.");
                     return;
                 }
                 if (!stu.isCurrentlyRenting()) {
@@ -418,7 +480,11 @@ public class Archive {
                 }
                 printUserOutput("Success.");
                 return;
-            } catch (Exception e) { printUserOutput("No students in system."); return; }
+            } catch (Exception e) { 
+                if (students.isEmpty()) printUserOutput("No students in system.");
+                else printUserOutput("No such student in system.");
+                return; 
+            }
         }
         if (upper.startsWith("RELINQUISH ")) {
             String[] args = original.split(" ");
@@ -426,31 +492,45 @@ public class Archive {
                 printUserOutput("No students in system.");
                 return;
             }
+            int snum;
             try {
-                int snum = Integer.parseInt(args[1]);
-                int serial = Integer.parseInt(args[2]);
-                Student stu = students.get(snum);
-                if (stu == null) {
-                    printUserOutput("No students in system.");
-                    return;
-                }
-                SpellBook sb = spellBooks.get(serial);
-                if (sb == null) {
-                    printUserOutput("No spellbooks in system.");
-                    return;
-                }
-                if (sb.getCurrentRenter() == null || sb.getCurrentRenter() != snum) {
-                    printUserOutput("Unable to return spellbook.");
-                    return;
-                }
-                sb.relinquishFrom(snum);
-                stu.returnSpellbook(serial);
-                printUserOutput("Success.");
+                snum = Integer.parseInt(args[1]);
+            } catch (Exception e) {
+                if (students.isEmpty()) printUserOutput("No students in system.");
+                else printUserOutput("No such student in system.");
                 return;
-            } catch (Exception e) { printUserOutput("No students in system."); return; }
+            }
+            Student stu = students.get(snum);
+            if (stu == null) {
+                if (students.isEmpty()) printUserOutput("No students in system.");
+                else printUserOutput("No such student in system.");
+                return;
+            }
+            int serial;
+            try {
+                serial = Integer.parseInt(args[2]);
+            } catch (Exception e) {
+                if (spellBooks.isEmpty()) printUserOutput("No spellbooks in system.");
+                else printUserOutput("No such spellbook in system.");
+                return;
+            }
+            SpellBook sb = spellBooks.get(serial);
+            if (sb == null) {
+                if (spellBooks.isEmpty()) printUserOutput("No spellbooks in system.");
+                else printUserOutput("No such spellbook in system.");
+                return;
+            }
+            if (sb.getCurrentRenter() == null || sb.getCurrentRenter() != snum) {
+                printUserOutput("Unable to return spellbook.");
+                return;
+            }
+            sb.relinquishFrom(snum);
+            stu.returnSpellbook(serial);
+            printUserOutput("Success.");
+            return;
         }
         if (upper.startsWith("ADD ")) {
-            printUserOutput("Invalid add command.");
+            // Ignore invalid ADD commands per spec
             return;
         }
         if (upper.startsWith("SAVE COLLECTION ")) {
@@ -467,16 +547,26 @@ public class Archive {
             try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
                 List<SpellBook> sbs = new ArrayList<>(spellBooks.values());
                 sbs.sort(Comparator.comparingInt(SpellBook::getSerialNumber));
+                // Write CSV header as expected by tests
+                pw.println("serialNumber,title,inventor,type");
                 for (SpellBook sb : sbs) {
                     pw.printf("%d,%s,%s,%s\n", sb.getSerialNumber(), sb.getTitle(), sb.getInventor(), sb.getType());
                 }
-                printUserOutput("Collection saved.");
+                printUserOutput("Success.");
             } catch (IOException e) {
                 printUserOutput("Unable to save collection.");
             }
             return;
         }
         if (upper.startsWith("COMMON ")) {
+            if (students.isEmpty()) {
+                printUserOutput("No students in system.");
+                return;
+            }
+            if (spellBooks.isEmpty()) {
+                printUserOutput("No spellbooks in system.");
+                return;
+            }
             String[] args = original.split(" ");
             Set<Integer> nums = new LinkedHashSet<>();
             for (int i = 1; i < args.length; i++) {
@@ -491,6 +581,10 @@ public class Archive {
                     printUserOutput("No such student in system.");
                     return;
                 }
+            }
+            if (nums.size() < 2) {
+                printUserOutput("No common spellbooks.");
+                return;
             }
             List<Set<Integer>> histories = new ArrayList<>();
             for (int n : nums) {
@@ -546,25 +640,41 @@ public class Archive {
         List<String> help = new ArrayList<>();
         help.add("EXIT ends the archive process");
         help.add("COMMANDS outputs this help string");
+        help.add("");
+
         help.add("LIST ALL [LONG] outputs either the short or long string for all spellbooks");
         help.add("LIST AVAILABLE [LONG] outputs either the short or long string for all available spellbooks");
         help.add("NUMBER COPIES outputs the number of copies of each spellbook");
         help.add("LIST TYPES outputs the name of every type in the system");
         help.add("LIST INVENTORS outputs the name of every inventor in the system");
+        help.add("");
+
         help.add("TYPE <type> outputs the short string of every spellbook with the specified type");
         help.add("INVENTOR <inventor> outputs the short string of every spellbook by the specified inventor");
+        help.add("");
+
         help.add("SPELLBOOK <serialNumber> [LONG] outputs either the short or long string for the specified spellbook");
         help.add("SPELLBOOK HISTORY <serialNumber> outputs the rental history of the specified spellbook");
+        help.add("");
+
         help.add("STUDENT <studentNumber> outputs the information of the specified student");
         help.add("STUDENT SPELLBOOKS <studentNumber> outputs the spellbooks currently rented by the specified student");
         help.add("STUDENT HISTORY <studentNumber> outputs the rental history of the specified student");
+        help.add("");
+
         help.add("RENT <studentNumber> <serialNumber> loans out the specified spellbook to the given student");
         help.add("RELINQUISH <studentNumber> <serialNumber> returns the specified spellbook from the student");
         help.add("RELINQUISH ALL <studentNumber> returns all spellbooks rented by the specified student");
+        help.add("");
+
         help.add("ADD STUDENT <name> adds a student to the system");
         help.add("ADD SPELLBOOK <filename> <serialNumber> adds a spellbook to the system");
+        help.add("");
+
         help.add("ADD COLLECTION <filename> adds a collection of spellbooks to the system");
         help.add("SAVE COLLECTION <filename> saves the system to a csv file");
+        help.add("");
+
         help.add("COMMON <studentNumber1> <studentNumber2> ... outputs the common spellbooks in students' history");
         return help;
     }
