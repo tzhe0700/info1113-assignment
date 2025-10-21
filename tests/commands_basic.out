@@ -1,23 +1,33 @@
-EXIT ends the archive process
+user: EXIT ends the archive process
 COMMANDS outputs this help string
+
 LIST ALL [LONG] outputs either the short or long string for all spellbooks
 LIST AVAILABLE [LONG] outputs either the short or long string for all available spellbooks
 NUMBER COPIES outputs the number of copies of each spellbook
 LIST TYPES outputs the name of every type in the system
 LIST INVENTORS outputs the name of every inventor in the system
+
 TYPE <type> outputs the short string of every spellbook with the specified type
 INVENTOR <inventor> outputs the short string of every spellbook by the specified inventor
+
 SPELLBOOK <serialNumber> [LONG] outputs either the short or long string for the specified spellbook
 SPELLBOOK HISTORY <serialNumber> outputs the rental history of the specified spellbook
+
 STUDENT <studentNumber> outputs the information of the specified student
 STUDENT SPELLBOOKS <studentNumber> outputs the spellbooks currently rented by the specified student
 STUDENT HISTORY <studentNumber> outputs the rental history of the specified student
+
 RENT <studentNumber> <serialNumber> loans out the specified spellbook to the given student
 RELINQUISH <studentNumber> <serialNumber> returns the specified spellbook from the student
 RELINQUISH ALL <studentNumber> returns all spellbooks rented by the specified student
+
 ADD STUDENT <name> adds a student to the system
 ADD SPELLBOOK <filename> <serialNumber> adds a spellbook to the system
+
 ADD COLLECTION <filename> adds a collection of spellbooks to the system
 SAVE COLLECTION <filename> saves the system to a csv file
+
 COMMON <studentNumber1> <studentNumber2> ... outputs the common spellbooks in students' history
+
+user: Ending Archive process.
 
