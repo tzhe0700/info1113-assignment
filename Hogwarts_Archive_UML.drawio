@@ -1,0 +1,80 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" version="24.0.0" etag="abc123" type="device">
+  <diagram name="Hogwarts Archive UML" id="hogwarts-archive-uml">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Archive Class -->
+        <mxCell id="archive" value="Archive" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="300" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="archive-attrs" value="- students: Map&lt;Integer, Student&gt;&#xa;- spellBooks: Map&lt;Integer, SpellBook&gt;&#xa;- nextStudentNumber: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="archive">
+          <mxGeometry y="30" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="archive-methods" value="+ main(String[] args): void&#xa;+ processCommand(String input): void&#xa;- printUserOutput(String line): void&#xa;- printUserOutput(List&lt;String&gt; lines): void&#xa;- getCommandsOutput(): List&lt;String&gt;&#xa;- capFirst(String s): String&#xa;- loadSpellBookBySerial(String filename, int serial): SpellBook&#xa;- loadSpellBooks(String filename): List&lt;SpellBook&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="archive">
+          <mxGeometry y="90" width="300" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Student Class -->
+        <mxCell id="student" value="Student" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="450" y="50" width="300" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="student-attrs" value="- studentNumber: int&#xa;- name: String&#xa;- currentRentals: List&lt;Integer&gt;&#xa;- rentalHistory: List&lt;Integer&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="student">
+          <mxGeometry y="30" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="student-methods" value="+ Student(int studentNumber, String name)&#xa;+ getStudentNumber(): int&#xa;+ getName(): String&#xa;+ getCurrentRentals(): List&lt;Integer&gt;&#xa;+ getRentalHistory(): List&lt;Integer&gt;&#xa;+ rentSpellbook(int serialNumber): void&#xa;+ returnSpellbook(int serialNumber): boolean&#xa;+ returnAllSpellbooks(): void&#xa;+ isCurrentlyRenting(): boolean&#xa;+ toString(): String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="student">
+          <mxGeometry y="90" width="300" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- SpellBook Class -->
+        <mxCell id="spellbook" value="SpellBook" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="250" y="350" width="300" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="spellbook-attrs" value="- serialNumber: int&#xa;- title: String&#xa;- inventor: String&#xa;- type: String&#xa;- currentRenter: Integer&#xa;- rentalHistory: List&lt;Integer&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="spellbook">
+          <mxGeometry y="30" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="spellbook-methods" value="+ SpellBook(int serialNumber, String title, String inventor, String type)&#xa;+ getSerialNumber(): int&#xa;+ getTitle(): String&#xa;+ getInventor(): String&#xa;+ getType(): String&#xa;+ getCurrentRenter(): Integer&#xa;+ getRentalHistory(): List&lt;Integer&gt;&#xa;+ isAvailable(): boolean&#xa;+ rentTo(int studentNumber): void&#xa;+ relinquishFrom(int studentNumber): boolean&#xa;+ isCopyOf(SpellBook other): boolean&#xa;+ toShortString(): String&#xa;+ toLongString(): String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontSize=12;" vertex="1" parent="spellbook">
+          <mxGeometry y="90" width="300" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        <!-- Archive to Student -->
+        <mxCell id="archive-student" value="manages&#xa;1..*" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="archive" target="student">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="150" as="sourcePoint" />
+            <mxPoint x="450" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Archive to SpellBook -->
+        <mxCell id="archive-spellbook" value="manages&#xa;1..*" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="archive" target="spellbook">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="200" y="250" as="sourcePoint" />
+            <mxPoint x="400" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Student to SpellBook (rental relationship) -->
+        <mxCell id="student-spellbook" value="rents&#xa;0..*&#xa;(temporary)" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="student" target="spellbook">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="250" as="sourcePoint" />
+            <mxPoint x="400" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Title -->
+        <mxCell id="title" value="Hogwarts Archive System - UML Class Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="400" height="30" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,82 @@
+HOGWARTS ARCHIVE SYSTEM - UML CLASS DIAGRAM
+=============================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│                           Archive                               │
+├─────────────────────────────────────────────────────────────────┤
+│ - students: Map<Integer, Student>                               │
+│ - spellBooks: Map<Integer, SpellBook>                          │
+│ - nextStudentNumber: int                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ + main(String[] args): void                                    │
+│ + processCommand(String input): void                           │
+│ - printUserOutput(String line): void                           │
+│ - printUserOutput(List<String> lines): void                    │
+│ - getCommandsOutput(): List<String>                            │
+│ - capFirst(String s): String                                   │
+│ - loadSpellBookBySerial(String filename, int serial): SpellBook│
+│ - loadSpellBooks(String filename): List<SpellBook>             │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ manages (1..*)
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                           Student                              │
+├─────────────────────────────────────────────────────────────────┤
+│ - studentNumber: int                                           │
+│ - name: String                                                 │
+│ - currentRentals: List<Integer>                                │
+│ - rentalHistory: List<Integer>                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ + Student(int studentNumber, String name)                      │
+│ + getStudentNumber(): int                                      │
+│ + getName(): String                                            │
+│ + getCurrentRentals(): List<Integer>                           │
+│ + getRentalHistory(): List<Integer>                            │
+│ + rentSpellbook(int serialNumber): void                        │
+│ + returnSpellbook(int serialNumber): boolean                   │
+│ + returnAllSpellbooks(): void                                 │
+│ + isCurrentlyRenting(): boolean                               │
+│ + toString(): String                                           │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ rents (0..*)
+                                │ (temporary)
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          SpellBook                             │
+├─────────────────────────────────────────────────────────────────┤
+│ - serialNumber: int                                            │
+│ - title: String                                                │
+│ - inventor: String                                             │
+│ - type: String                                                 │
+│ - currentRenter: Integer                                       │
+│ - rentalHistory: List<Integer>                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ + SpellBook(int serialNumber, String title, String inventor,   │
+│   String type)                                                 │
+│ + getSerialNumber(): int                                       │
+│ + getTitle(): String                                           │
+│ + getInventor(): String                                        │
+│ + getType(): String                                            │
+│ + getCurrentRenter(): Integer                                  │
+│ + getRentalHistory(): List<Integer>                            │
+│ + isAvailable(): boolean                                       │
+│ + rentTo(int studentNumber): void                              │
+│ + relinquishFrom(int studentNumber): boolean                   │
+│ + isCopyOf(SpellBook other): boolean                           │
+│ + toShortString(): String                                      │
+│ + toLongString(): String                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+RELATIONSHIPS:
+- Archive manages (1..*) Student
+- Archive manages (1..*) SpellBook  
+- Student rents (0..*) SpellBook (temporary relationship)
+- SpellBook rented by (0..1) Student (at any given time)
+
+KEY FEATURES:
+- Command processing system in Archive
+- Rental history tracking in both Student and SpellBook
+- Temporary rental relationships
+- Unique identification through serial numbers and student numbers
